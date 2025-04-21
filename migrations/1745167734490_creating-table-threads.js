@@ -20,11 +20,15 @@ exports.up = pgm => {
             type: 'VARCHAR(50)',
             notNull: true
         },
-        user_id: {
+        owner_id: {
             type: 'VARCHAR(30)',
             notNull: true,
             references: 'users',
             onDelete: 'CASCADE'
+        },
+        owner_username: {
+            type: 'VARCHAR(50)',
+            notNull: true,
         }
     })
 };

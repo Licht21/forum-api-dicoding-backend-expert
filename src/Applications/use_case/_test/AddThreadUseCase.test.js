@@ -8,7 +8,9 @@ describe('AddThreadUseCase', () => {
         // Arrange
         const useCasePayload = {
             title: 'thread title',
-            body: 'thread body'
+            body: 'thread body',
+            ownerId: 'user-123',
+            ownerUsername: 'dicoding'
         }
 
         const mockAddedThread = new AddedThread({
@@ -33,7 +35,7 @@ describe('AddThreadUseCase', () => {
         const addedThread = await addThreadUseCase.execute(useCasePayload)
 
         // Assert
-        expect(addedThread).toStrictEqual(new AddThread({
+        expect(addedThread).toStrictEqual(new AddedThread({
             id: 'thread-123',
             title: useCasePayload.title,
             owner: 'user-123'
