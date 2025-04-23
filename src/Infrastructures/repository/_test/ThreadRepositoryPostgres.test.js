@@ -1,10 +1,10 @@
-const InvariantError = require('../../../Commons/exceptions/InvariantError')
 const AddThread = require('../../../Domains/threads/entities/AddThread')
 const AddedThread = require('../../../Domains/threads/entities/AddedThread')
 const pool = require('../../database/postgres/pool')
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres')
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper')
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper')
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError')
 
 describe('ThreadRepositoryPostgres', () => {
     afterEach(async () => {
@@ -58,6 +58,45 @@ describe('ThreadRepositoryPostgres', () => {
                 title: 'thread title',
                 owner: 'user-123'
             }))
+        })
+    })
+
+    describe('isThreadExist function', () => {
+        it('should not throw error when thread exist', async () => {
+            // Arrange
+            await UsersTableTestHelper.addUser({})
+            const addThread = new AddThread({
+                title: 'thread title',
+                body: 'thread body',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding'
+            })
+            const fakeIdGenerator = () => '123'
+            const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool,fakeIdGenerator)
+
+            await threadRepositoryPostgres.addThread(addThread)
+
+            // Action and Assert
+            await expect(threadRepositoryPostgres.isThreadExist('thread-123')).resolves.not.toThrow(NotFoundError)
+        })
+
+        it('should throw error when thread not found', async () => {
+            // Arrange
+            await UsersTableTestHelper.addUser({})
+            const addThread = new AddThread({
+                title: 'thread title',
+                body: 'thread body',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding'
+            })
+
+            const fakeIdGenerator = () => '123'
+            const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool,fakeIdGenerator)
+
+            await threadRepositoryPostgres.addThread(addThread)
+
+            // Action and Assert
+            await expect(threadRepositoryPostgres.isThreadExist('thread-1234')).rejects.toThrow(NotFoundError)
         })
     })
 })
