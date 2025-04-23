@@ -17,7 +17,8 @@ describe('AddComment entities', () => {
         const payload = {
             content: 'comment content',
             ownerId: 123,
-            ownerUsername: 'dicoding'
+            ownerUsername: 'dicoding',
+            threadId: 'thread-123'
         }
 
         // Action and Assert
@@ -29,7 +30,8 @@ describe('AddComment entities', () => {
         const payload = {
             content: 'comment content',
             ownerId: 'user-123',
-            ownerUsername: 'dicoding'
+            ownerUsername: 'dicoding',
+            threadId: 'threadId'
         }
 
         // Action
@@ -39,6 +41,7 @@ describe('AddComment entities', () => {
         expect(addComment.content).toEqual(payload.content)
         expect(addComment.ownerId).toEqual(payload.ownerId)
         expect(addComment.ownerUsername).toEqual(payload.ownerUsername)
+        expect(addComment.threadId).toEqual(payload.threadId)
         expect(addComment).toBeInstanceOf(AddComment)
     })
 })

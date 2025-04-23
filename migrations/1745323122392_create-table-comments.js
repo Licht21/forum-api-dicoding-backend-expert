@@ -19,12 +19,16 @@ exports.up = pgm => {
         owner_id: {
             type: 'VARCHAR(30)',
             notNull: true,
-            references: 'threads',
-            onDelete: 'CASCADE'
         },
         owner_username: {
             type: 'VARCHAR(50)',
             notNull: true,
+        },
+        thread_id: {
+            type: 'VARCHAR(30)',
+            notNull: true,
+            references: 'threads',
+            onDelete: 'CASCADE'
         }
     })
 };

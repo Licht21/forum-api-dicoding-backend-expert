@@ -9,7 +9,8 @@ describe('AddCommentUseCase', () => {
         const useCasePayload = {
             ownerId: 'user-123',
             ownerUsername: 'dicoding',
-            content: 'a content'
+            content: 'a content',
+            threadId: 'thread-123'
         }
 
         const mockAddedComment = new AddedComment({
