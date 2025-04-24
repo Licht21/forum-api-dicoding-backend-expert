@@ -404,11 +404,25 @@ describe('/comments endpoint', () => {
             })
             const responseThreadJson = JSON.parse(responseThread.payload)
 
+            const requestPayloadComment = {
+                content: 'a content'
+            }
+
+            const responseComment = await server.inject({
+                method: 'POST',
+                url: `/threads/${responseThreadJson.data.addedThread.id}/comments`,
+                payload: requestPayloadComment,
+                headers: {
+                    Authorization: `Bearer ${accessTokenUser1}`
+                }
+            })
+            const responseCommentJson = JSON.parse(responseComment.payload)
+
 
             // Action
             const response = await server.inject({
                 method: 'DELETE',
-                url: `/threads/${responseThreadJson.data.addedThread.id}/comments/xxx`,
+                url: `/threads/${responseThreadJson.data.addedThread.id}/comments/${responseCommentJson.data.addedComment.id}`,
                 headers: {
                     Authorization: `Bearer ${accessTokenUser2}`
                 }

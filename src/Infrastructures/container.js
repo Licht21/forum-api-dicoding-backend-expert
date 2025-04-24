@@ -224,8 +224,8 @@ container.register([
       injectType: 'destructuring',
       dependencies: [
         {
-          name : 'commentRepository',
-          internal: DeleteCommentUseCase.name
+          name: 'commentRepository',
+          internal: CommentRepository.name
         }
       ]
     }
