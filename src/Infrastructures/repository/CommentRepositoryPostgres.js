@@ -56,6 +56,19 @@ class CommentRepositoryPostgres extends CommentRepository {
             throw new AuthorizationError('User tidak memiliki akses ke comment berikut')
         }
     }
+
+    async getCommentsByThreadId(threadId) {
+        const query = {
+            text: 'SELECT id, owner_username AS username, date, content, is_delete FROM comments WHERE thread_id = $1 ORDER BY date ASC',
+            values: [threadId]
+        }
+
+        const result = await this._pool.query(query)
+
+        result.rows.map((item) => item.is_delete === false ? item.content : item.content = '**komentar telah dihapus**')
+
+        return result.rows
+    }
 }
 
 module.exports = CommentRepositoryPostgres

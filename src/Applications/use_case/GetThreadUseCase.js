@@ -18,7 +18,6 @@ class GetThreadUseCase {
             ...thread,
             comments
         })
-        console.log(getThread)
 
         return getThread
     }

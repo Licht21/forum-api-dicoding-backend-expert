@@ -181,4 +181,96 @@ describe('CommentRepositoryPostgres', () => {
             })).resolves.not.toThrow(AuthorizationError)
         })
     })
+
+    describe('getCommentsByThreadId function', () => {
+        it('should return comments correctly', async () => {
+            // Arrange
+            // Adding user so thread can be added
+
+            await UsersTableTestHelper.addUser({})
+            const addThread = new AddThread({
+                title: 'thread title',
+                body: 'thread body',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding'
+            })
+
+            // creating dependencies
+            const fakeIdGenerator = () => '123'
+            const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator)
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator)
+            
+            // Adding thread so comment can be added to thread
+            const addedThread = await threadRepositoryPostgres.addThread(addThread)
+
+            // Add comment to thread
+            const addComment = new AddComment({
+                content: 'a content',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding',
+                threadId: 'thread-123'
+            })
+
+            await commentRepositoryPostgres.addComment(addComment)
+
+            // Action
+            const comments = await commentRepositoryPostgres.getCommentsByThreadId(addedThread.id)
+
+            // Assert
+            expect(comments.length).toEqual(1)
+            expect(comments[0].id).toBeDefined()
+            expect(comments[0].username).toBeDefined()
+            expect(comments[0].date).toBeDefined()
+            expect(comments[0].content).toBeDefined()
+            expect(comments[0].content).toEqual(addComment.content)
+        })
+
+        it('should return comment with deleted content with **komentar telah dihapus**', async () => {
+            // Arrange
+            // Adding user so thread can be added
+
+            await UsersTableTestHelper.addUser({})
+            const addThread = new AddThread({
+                title: 'thread title',
+                body: 'thread body',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding'
+            })
+
+            // creating dependencies
+            const fakeIdGenerator = () => '123'
+            const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator)
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator)
+            
+            // Adding thread so comment can be added to thread
+            const addedThread = await threadRepositoryPostgres.addThread(addThread)
+
+            // Add comment to thread
+            const addComment = new AddComment({
+                content: 'a content',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding',
+                threadId: 'thread-123'
+            })
+
+            const addedComment = await commentRepositoryPostgres.addComment(addComment)
+
+            // Delete Comment
+            commentRepositoryPostgres.deleteComment({
+                ownerId: addedComment.owner,
+                commentId: addedComment.id
+            })
+
+            // Action
+            const comments = await commentRepositoryPostgres.getCommentsByThreadId(addedThread.id)
+
+            // Assert
+            expect(comments.length).toEqual(1)
+            expect(comments[0].id).toBeDefined()
+            expect(comments[0].username).toBeDefined()
+            expect(comments[0].date).toBeDefined()
+            expect(comments[0].content).toBeDefined()
+            expect(comments[0].content).toEqual('**komentar telah dihapus**')
+        })
+    })
 })
