@@ -1,3 +1,4 @@
+const NotFoundError = require('../../Commons/exceptions/NotFoundError')
 const CommentRepository = require('../../Domains/comments/CommentRepository')
 const AddedComment = require('../../Domains/comments/entities/AddedComment')
 
@@ -25,6 +26,19 @@ class CommentRepositoryPostgres extends CommentRepository {
             content: result.rows[0].content,
             owner: result.rows[0].owner_id
         })
+    }
+
+    async findCommentById(commentId) {
+        const query = {
+            text: 'SELECT id FROM comments WHERE id = $1',
+            values: [commentId]
+        }
+
+        const result = await this._pool.query(query)
+
+        if(result.rows.length === 0) {
+            throw new NotFoundError('comment tidak ditemukan')
+        }
     }
 }
 

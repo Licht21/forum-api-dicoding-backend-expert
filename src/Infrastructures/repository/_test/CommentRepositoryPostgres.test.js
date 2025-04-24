@@ -7,6 +7,7 @@ const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres')
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper')
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper')
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper')
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError')
 
 describe('CommentRepositoryPostgres', () => {
     afterEach(async () => {
@@ -57,6 +58,50 @@ describe('CommentRepositoryPostgres', () => {
                 content: 'a content',
                 owner: 'user-123'
             }))
+        })
+    })
+
+    describe('findCommentById function', () => {
+        it('should throw NotFoundError when comment not found', async () => {
+            // Arrange
+            const commentId = 'dummy_id'
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {})
+            // Action and Assert
+            await expect(commentRepositoryPostgres.findCommentById(commentId)).rejects.toThrow(NotFoundError)
+        })
+
+        it('should delete comment action correctly', async () => {
+            // Arrange
+
+            // Adding user so thread can be added
+
+            await UsersTableTestHelper.addUser({})
+            const addThread = new AddThread({
+                title: 'thread title',
+                body: 'thread body',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding'
+            })
+
+            // creating dependencies
+            const fakeIdGenerator = () => '123'
+            const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator)
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator)
+            
+            // Adding thread so comment can be added to thread
+            await threadRepositoryPostgres.addThread(addThread)
+
+            const addComment = new AddComment({
+                content: 'a content',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding',
+                threadId: 'thread-123'
+            })
+
+            const comment = await commentRepositoryPostgres.addComment(addComment)
+
+            // Action
+            await expect(commentRepositoryPostgres.findCommentById(comment.id)).resolves.not.toThrow(NotFoundError)
         })
     })
 })
