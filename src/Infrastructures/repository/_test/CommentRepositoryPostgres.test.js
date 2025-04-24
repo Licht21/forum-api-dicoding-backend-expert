@@ -8,6 +8,7 @@ const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper')
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper')
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper')
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError')
+const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError')
 
 describe('CommentRepositoryPostgres', () => {
     afterEach(async () => {
@@ -70,7 +71,7 @@ describe('CommentRepositoryPostgres', () => {
             await expect(commentRepositoryPostgres.findCommentById(commentId)).rejects.toThrow(NotFoundError)
         })
 
-        it('should delete comment action correctly', async () => {
+        it('should find comment action correctly', async () => {
             // Arrange
 
             // Adding user so thread can be added
@@ -102,6 +103,82 @@ describe('CommentRepositoryPostgres', () => {
 
             // Action
             await expect(commentRepositoryPostgres.findCommentById(comment.id)).resolves.not.toThrow(NotFoundError)
+        })
+    })
+
+    describe('deleteComment function', () => {
+        it('should throw Authorization when ownerId not matches', async () => {
+            // Arrange
+            // Make sure to different this payload comment ownerId id to actual comment ownerId
+            const payload = {
+                commentId: 'comment-123',
+                ownerId : 'user-1234'
+            }
+            // Adding user so thread can be added
+
+            await UsersTableTestHelper.addUser({})
+            const addThread = new AddThread({
+                title: 'thread title',
+                body: 'thread body',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding'
+            })
+
+            // creating dependencies
+            const fakeIdGenerator = () => '123'
+            const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator)
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator)
+            
+            // Adding thread so comment can be added to thread
+            await threadRepositoryPostgres.addThread(addThread)
+
+            const addComment = new AddComment({
+                content: 'a content',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding',
+                threadId: 'thread-123'
+            })
+
+            await commentRepositoryPostgres.addComment(addComment)
+
+            // Action and Assert
+            await expect(commentRepositoryPostgres.deleteComment(payload)).rejects.toThrow(AuthorizationError)
+        })
+
+        it('should delete comment action correctly', async () => {
+            // Arrange
+            // Adding user so thread can be added
+
+            await UsersTableTestHelper.addUser({})
+            const addThread = new AddThread({
+                title: 'thread title',
+                body: 'thread body',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding'
+            })
+
+            // creating dependencies
+            const fakeIdGenerator = () => '123'
+            const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator)
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator)
+            
+            // Adding thread so comment can be added to thread
+            await threadRepositoryPostgres.addThread(addThread)
+
+            const addComment = new AddComment({
+                content: 'a content',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding',
+                threadId: 'thread-123'
+            })
+
+            const addedComment = await commentRepositoryPostgres.addComment(addComment)
+
+            // Action and Assert
+            await expect(commentRepositoryPostgres.deleteComment({
+                ownerId: addedComment.owner,
+                commentId: addedComment.id
+            })).resolves.not.toThrow(AuthorizationError)
         })
     })
 })

@@ -1,3 +1,4 @@
+const AuthorizationError = require('../../Commons/exceptions/AuthorizationError')
 const NotFoundError = require('../../Commons/exceptions/NotFoundError')
 const CommentRepository = require('../../Domains/comments/CommentRepository')
 const AddedComment = require('../../Domains/comments/entities/AddedComment')
@@ -38,6 +39,21 @@ class CommentRepositoryPostgres extends CommentRepository {
 
         if(result.rows.length === 0) {
             throw new NotFoundError('comment tidak ditemukan')
+        }
+    }
+
+    async deleteComment(payload) {
+        const { ownerId, commentId } = payload
+
+        const query = {
+            text: 'UPDATE comments SET is_delete = $1 WHERE owner_id = $2 AND id = $3 RETURNING id',
+            values: [true, ownerId, commentId]
+        }
+
+        const result = await this._pool.query(query)
+
+        if(result.rows.length === 0 ) {
+            throw new AuthorizationError('User tidak memiliki akses ke comment berikut')
         }
     }
 }
