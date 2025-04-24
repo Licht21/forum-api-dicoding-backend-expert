@@ -5,6 +5,7 @@ const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres')
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper')
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper')
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError')
+const GetThread = require('../../../Domains/threads/entities/GetThread')
 
 describe('ThreadRepositoryPostgres', () => {
     afterEach(async () => {
@@ -97,6 +98,52 @@ describe('ThreadRepositoryPostgres', () => {
 
             // Action and Assert
             await expect(threadRepositoryPostgres.isThreadExist('thread-1234')).rejects.toThrow(NotFoundError)
+        })
+    })
+
+    describe('getThread function', () => {
+        it('should throw NotFoundError when thread not found', async () => {
+            // Arrange
+            await UsersTableTestHelper.addUser({})
+            const addThread = new AddThread({
+                title: 'thread title',
+                body: 'thread body',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding'
+            })
+
+            const fakeIdGenerator = () => '123'
+            const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool,fakeIdGenerator)
+
+            await threadRepositoryPostgres.addThread(addThread)
+
+            // Action and Assert
+            await expect(threadRepositoryPostgres.isThreadExist('thread-1234')).rejects.toThrow(NotFoundError)
+        })
+
+        it('should return thread correctly', async () => {
+            // Arrange
+            await UsersTableTestHelper.addUser({})
+            const addThread = new AddThread({
+                title: 'thread title',
+                body: 'thread body',
+                ownerId: 'user-123',
+                ownerUsername: 'dicoding'
+            })
+
+            const fakeIdGenerator = () => '123'
+            const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool,fakeIdGenerator)
+
+            const addedThread = await threadRepositoryPostgres.addThread(addThread)
+
+            // action
+            const getThread = await threadRepositoryPostgres.getThread(addedThread.id)
+
+            // Assert
+            expect(getThread[0].id).toEqual('thread-123')
+            expect(getThread[0].title).toEqual(addThread.title)
+            expect(getThread[0].body).toEqual(addThread.body)
+            expect(getThread[0].username).toEqual(addThread.ownerUsername)
         })
     })
 })
