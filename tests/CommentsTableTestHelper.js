@@ -1,10 +1,10 @@
 /* istanbul ignore file */
-const pool = require('../src/Infrastructures/database/postgres/pool')
+const pool = require('../src/Infrastructures/database/postgres/pool');
 
 const CommentsTableTestHelper = {
-    async cleanTable() {
-        await pool.query('DELETE FROM comments')
-    }
-}
+  async cleanTable() {
+    await pool.query('DELETE FROM comments');
+  },
+};
 
-module.exports = CommentsTableTestHelper
+module.exports = CommentsTableTestHelper;

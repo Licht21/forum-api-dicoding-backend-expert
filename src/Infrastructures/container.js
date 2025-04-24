@@ -13,10 +13,10 @@ const UserRepository = require('../Domains/users/UserRepository');
 const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
 const AuthenticationRepository = require('../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRepositoryPostgres');
-const ThreadRepository = require('../Domains/threads/ThreadRepository')
-const ThreadRepositoryPostgres = require('./repository/ThreadRepositoryPostgres')
-const CommentRepository = require('../Domains/comments/CommentRepository')
-const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgres')
+const ThreadRepository = require('../Domains/threads/ThreadRepository');
+const ThreadRepositoryPostgres = require('./repository/ThreadRepositoryPostgres');
+const CommentRepository = require('../Domains/comments/CommentRepository');
+const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgres');
 const PasswordHash = require('../Applications/security/PasswordHash');
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
 const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
@@ -27,9 +27,10 @@ const AddUserUseCase = require('../Applications/use_case/AddUserUseCase');
 const LoginUserUseCase = require('../Applications/use_case/LoginUserUseCase');
 const LogoutUserUseCase = require('../Applications/use_case/LogoutUserUseCase');
 const RefreshAuthenticationUseCase = require('../Applications/use_case/RefreshAuthenticationUseCase');
-const AddThreadUseCase = require('../Applications/use_case/AddThreadUseCase')
-const AddCommentUseCase = require('../Applications/use_case/AddCommentUseCase')
-const DeleteCommentUseCase = require('../Applications/use_case/DeleteCommentUseCase')
+const AddThreadUseCase = require('../Applications/use_case/AddThreadUseCase');
+const AddCommentUseCase = require('../Applications/use_case/AddCommentUseCase');
+const DeleteCommentUseCase = require('../Applications/use_case/DeleteCommentUseCase');
+const GetThreadUseCase = require('../Applications/use_case/GetThreadUseCase');
 
 // creating container
 const container = createContainer();
@@ -67,13 +68,13 @@ container.register([
     parameter: {
       dependencies: [
         {
-          concrete: pool
+          concrete: pool,
         },
         {
-          concrete: nanoid
-        }
-      ]
-    }
+          concrete: nanoid,
+        },
+      ],
+    },
   },
   {
     key: CommentRepository.name,
@@ -81,13 +82,13 @@ container.register([
     parameter: {
       dependencies: [
         {
-          concrete: pool
+          concrete: pool,
         },
         {
-          concrete: nanoid
-        }
-      ]
-    }
+          concrete: nanoid,
+        },
+      ],
+    },
   },
   {
     key: PasswordHash.name,
@@ -195,10 +196,10 @@ container.register([
       dependencies: [
         {
           name: 'threadRepository',
-          internal: ThreadRepository.name
-        }
-      ]
-    }
+          internal: ThreadRepository.name,
+        },
+      ],
+    },
   },
   {
     key: AddCommentUseCase.name,
@@ -208,14 +209,14 @@ container.register([
       dependencies: [
         {
           name: 'commentRepository',
-          internal: CommentRepository.name
+          internal: CommentRepository.name,
         },
         {
           name: 'threadRepository',
-          internal: ThreadRepository.name
-        }
-      ]
-    }
+          internal: ThreadRepository.name,
+        },
+      ],
+    },
   },
   {
     key: DeleteCommentUseCase.name,
@@ -225,11 +226,28 @@ container.register([
       dependencies: [
         {
           name: 'commentRepository',
-          internal: CommentRepository.name
-        }
-      ]
-    }
-  }
+          internal: CommentRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: GetThreadUseCase.name,
+    Class: GetThreadUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'commentRepository',
+          internal: CommentRepository.name,
+        },
+        {
+          name: 'threadRepository',
+          internal: ThreadRepository.name,
+        },
+      ],
+    },
+  },
 ]);
 
 module.exports = container;

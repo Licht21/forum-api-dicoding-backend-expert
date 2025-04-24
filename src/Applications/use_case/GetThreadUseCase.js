@@ -1,26 +1,26 @@
-const GetThread = require("../../Domains/threads/entities/GetThread")
+const GetThread = require('../../Domains/threads/entities/GetThread');
 
 class GetThreadUseCase {
-    constructor({
-        commentRepository, 
-        threadRepository
-    }) {
-        this._commentRepository = commentRepository
-        this._threadRepository = threadRepository
-    }
+  constructor({
+    commentRepository,
+    threadRepository,
+  }) {
+    this._commentRepository = commentRepository;
+    this._threadRepository = threadRepository;
+  }
 
-    async execute(useCasePayload) {
-        const { threadId } = useCasePayload
-        const comments = await this._commentRepository.getCommentsByThreadId(threadId)
-        const thread = await this._threadRepository.getThread(threadId)
+  async execute(useCasePayload) {
+    const { threadId } = useCasePayload;
+    const thread = await this._threadRepository.getThread(threadId);
+    const comments = await this._commentRepository.getCommentsByThreadId(threadId);
 
-        const getThread = new GetThread({
-            ...thread,
-            comments
-        })
+    const getThread = new GetThread({
+      ...thread,
+      comments,
+    });
 
-        return getThread
-    }
+    return getThread;
+  }
 }
 
-module.exports = GetThreadUseCase
+module.exports = GetThreadUseCase;

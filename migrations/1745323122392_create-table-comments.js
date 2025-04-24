@@ -2,42 +2,42 @@
 
 exports.shorthands = undefined;
 
-exports.up = pgm => {
-    pgm.createTable('comments', {
-        id: {
-            type: 'VARCHAR(50)',
-            primaryKey: true
-        },
-        content: {
-            type: 'TEXT',
-            notNull: true,
-        },
-        date: {
-            type: 'VARCHAR(50)',
-            notNull: true,
-        },
-        owner_id: {
-            type: 'VARCHAR(30)',
-            notNull: true,
-        },
-        owner_username: {
-            type: 'VARCHAR(50)',
-            notNull: true,
-        },
-        thread_id: {
-            type: 'VARCHAR(30)',
-            notNull: true,
-            references: 'threads',
-            onDelete: 'CASCADE'
-        },
-        is_delete: {
-            type: 'BOOLEAN',
-            notNull: true,
-            default: false
-        }
-    })
+exports.up = (pgm) => {
+  pgm.createTable('comments', {
+    id: {
+      type: 'VARCHAR(50)',
+      primaryKey: true,
+    },
+    content: {
+      type: 'TEXT',
+      notNull: true,
+    },
+    date: {
+      type: 'VARCHAR(50)',
+      notNull: true,
+    },
+    owner_id: {
+      type: 'VARCHAR(30)',
+      notNull: true,
+    },
+    owner_username: {
+      type: 'VARCHAR(50)',
+      notNull: true,
+    },
+    thread_id: {
+      type: 'VARCHAR(30)',
+      notNull: true,
+      references: 'threads',
+      onDelete: 'CASCADE',
+    },
+    is_delete: {
+      type: 'BOOLEAN',
+      notNull: true,
+      default: false,
+    },
+  });
 };
 
-exports.down = pgm => {
-    pgm.dropTable('comments')
+exports.down = (pgm) => {
+  pgm.dropTable('comments');
 };

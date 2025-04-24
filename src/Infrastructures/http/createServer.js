@@ -8,7 +8,6 @@ const authentications = require('../../Interfaces/http/api/authentications');
 const threads = require('../../Interfaces/http/api/threads');
 const comments = require('../../Interfaces/http/api/comments');
 
-
 const createServer = async (container) => {
   const server = Hapi.server({
     host: process.env.HOST,
@@ -34,7 +33,7 @@ const createServer = async (container) => {
       isValid: true,
       credentials: {
         id: artifacts.decoded.payload.id,
-        username: artifacts.decoded.payload.username
+        username: artifacts.decoded.payload.username,
       },
     }),
   });
@@ -50,12 +49,12 @@ const createServer = async (container) => {
     },
     {
       plugin: threads,
-      options: { container }
+      options: { container },
     },
     {
       plugin: comments,
-      options: { container }
-    }
+      options: { container },
+    },
   ]);
 
   server.ext('onPreResponse', (request, h) => {
