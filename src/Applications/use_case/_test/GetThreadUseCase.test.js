@@ -16,7 +16,6 @@ describe('GetCommentsUseCase', () => {
       body: 'a thread body',
       date: '2021',
       username: 'dicoding',
-      comments: [],
     };
 
     const mockCommentByThreadId = [
@@ -44,7 +43,7 @@ describe('GetCommentsUseCase', () => {
     mockCommentRepository.getCommentsByThreadId = jest.fn()
       .mockImplementation(() => Promise.resolve(mockCommentByThreadId));
     mockThreadRepository.getThread = jest.fn()
-      .mockImplementation(() => Promise.resolve(new GetThread(mockGetThread)));
+      .mockImplementation(() => Promise.resolve(mockGetThread));
 
     // creating use case instance
     const getThreadUseCase = new GetThreadUseCase({
