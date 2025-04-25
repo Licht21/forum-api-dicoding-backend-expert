@@ -14,12 +14,22 @@ class GetThreadUseCase {
     const thread = await this._threadRepository.getThread(threadId);
     const comments = await this._commentRepository.getCommentsByThreadId(threadId);
 
-    const getThread = new GetThread({
-      ...thread,
-      comments,
+    const modifiedComments = comments.map((item) => {
+      if (item.is_delete === false) {
+        delete item.is_delete;
+        return item;
+      }
+      delete item.is_delete;
+      return {
+        ...item,
+        content: '**komentar telah dihapus**',
+      };
     });
 
-    return getThread;
+    return new GetThread({
+      ...thread,
+      comments: modifiedComments,
+    });
   }
 }
 

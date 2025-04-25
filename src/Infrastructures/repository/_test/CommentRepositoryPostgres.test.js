@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const AddComment = require('../../../Domains/comments/entities/AddComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const AddThread = require('../../../Domains/threads/entities/AddThread');
@@ -59,6 +60,7 @@ describe('CommentRepositoryPostgres', () => {
         content: 'a content',
         owner: 'user-123',
       }));
+      await expect(commentRepositoryPostgres.findCommentById(comment.id)).resolves.not.toThrow(NotFoundError);
     });
   });
 
@@ -175,10 +177,14 @@ describe('CommentRepositoryPostgres', () => {
       const addedComment = await commentRepositoryPostgres.addComment(addComment);
 
       // Action and Assert
+      const undeletedComment = await CommentsTableTestHelper.findCommentById(addedComment.id);
+      expect(undeletedComment.is_delete).toEqual(false);
       await expect(commentRepositoryPostgres.deleteComment({
         ownerId: addedComment.owner,
         commentId: addedComment.id,
       })).resolves.not.toThrow(AuthorizationError);
+      const deletedComment = await CommentsTableTestHelper.findCommentById(addedComment.id);
+      expect(deletedComment.is_delete).toEqual(true);
     });
   });
 
@@ -223,6 +229,7 @@ describe('CommentRepositoryPostgres', () => {
       expect(comments[0].date).toBeDefined();
       expect(comments[0].content).toBeDefined();
       expect(comments[0].content).toEqual(addComment.content);
+      expect(comments[0].is_delete).toEqual(false);
     });
 
     it('should return comment with deleted content with **komentar telah dihapus**', async () => {
@@ -270,7 +277,7 @@ describe('CommentRepositoryPostgres', () => {
       expect(comments[0].username).toBeDefined();
       expect(comments[0].date).toBeDefined();
       expect(comments[0].content).toBeDefined();
-      expect(comments[0].content).toEqual('**komentar telah dihapus**');
+      expect(comments[0].is_delete).toEqual(true);
     });
   });
 });

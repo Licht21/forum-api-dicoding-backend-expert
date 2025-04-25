@@ -10,14 +10,31 @@ describe('GetCommentsUseCase', () => {
       threadId: 'thread-123',
     };
 
-    const mockGetThread = new GetThread({
+    const mockGetThread = {
       id: 'thread-123',
       title: 'a thread',
       body: 'a thread body',
       date: '2021',
       username: 'dicoding',
       comments: [],
-    });
+    };
+
+    const mockCommentByThreadId = [
+      {
+        id: 'comment-123',
+        username: 'dicoding',
+        date: '2021',
+        content: 'a content',
+        is_delete: false,
+      },
+      {
+        id: 'comment-1234',
+        username: 'dicoding',
+        date: '2021',
+        content: 'a content',
+        is_delete: true,
+      },
+    ];
 
     // creating dependency of use case
     const mockCommentRepository = new CommentRepository();
@@ -25,9 +42,9 @@ describe('GetCommentsUseCase', () => {
 
     // mocking needed function
     mockCommentRepository.getCommentsByThreadId = jest.fn()
-      .mockImplementation(() => Promise.resolve([]));
+      .mockImplementation(() => Promise.resolve(mockCommentByThreadId));
     mockThreadRepository.getThread = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockGetThread));
+      .mockImplementation(() => Promise.resolve(new GetThread(mockGetThread)));
 
     // creating use case instance
     const getThreadUseCase = new GetThreadUseCase({
@@ -39,7 +56,27 @@ describe('GetCommentsUseCase', () => {
     const getThread = await getThreadUseCase.execute(useCasePayload);
 
     // Assert
-    expect(getThread).toStrictEqual(mockGetThread);
+    expect(getThread).toStrictEqual(new GetThread({
+      id: 'thread-123',
+      title: 'a thread',
+      body: 'a thread body',
+      date: '2021',
+      username: 'dicoding',
+      comments: [
+        {
+          id: 'comment-123',
+          username: 'dicoding',
+          date: '2021',
+          content: 'a content',
+        },
+        {
+          id: 'comment-1234',
+          username: 'dicoding',
+          date: '2021',
+          content: '**komentar telah dihapus**',
+        },
+      ],
+    }));
     expect(getThread).toBeInstanceOf(GetThread);
     expect(mockCommentRepository.getCommentsByThreadId).toBeCalledWith(useCasePayload.threadId);
     expect(mockThreadRepository.getThread).toBeCalledWith(useCasePayload.threadId);

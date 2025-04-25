@@ -119,6 +119,7 @@ describe('ThreadRepositoryPostgres', () => {
 
       // Action and Assert
       await expect(threadRepositoryPostgres.isThreadExist('thread-1234')).rejects.toThrow(NotFoundError);
+      await expect(threadRepositoryPostgres.getThread('thread-1234')).rejects.toThrow(NotFoundError);
     });
 
     it('should return thread correctly', async () => {
